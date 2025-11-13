@@ -20,7 +20,7 @@ app.post('/render', async (req, res) => {
     const options = req.body
 
     // 验证必要的参数
-    if (!options || !options.type || !options.data) {
+    if (!options) {
       return res.status(400).json({
         success: false,
         errorMessage: '缺少必要的参数: type 或 data'
