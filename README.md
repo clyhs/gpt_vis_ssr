@@ -75,3 +75,8 @@ docker-compose up -d
 
 - 结果图示例
 ![](./example.png)
+
+```
+docker build -t gpt_vis_ssr:3.0 .
+docker run -d --name=gpt_vis_ssr -v /home/domains/images:/app/public/images -p 3000:3000 -e NODE_ENV=production  gpt_vis_ssr:2.0
+```
