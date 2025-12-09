@@ -112,7 +112,7 @@ app.post('/render-html', async (req, res) => {
           window.ReactDOM = ReactDOM;
         }
         // 数据
-        var options = ${options};
+        var options = ${chartConfigStr};
 
         // 检查依赖是否加载完成
         if (!window.React || !window.ReactDOM) {
