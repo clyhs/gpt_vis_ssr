@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gpt-vis 示例柱状图</title>
+    <!-- mapbox-gl CSS -->
+    <link href="https://unpkg.com/mapbox-gl@2/dist/mapbox-gl.css" rel="stylesheet" />
+    <!-- maplibre-gl CSS -->
+    <link href="https://unpkg.com/maplibre-gl@2/dist/maplibre-gl.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div
+      id="container"
+      style="width: 800px; height: 500px; margin: 24px auto;"
+    ></div>
+
+    <!-- 引入依赖库 -->
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <!-- ReactDOM (gpt-vis 可能需要用于渲染 React 组件) -->
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- lodash -->
+    <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
+    <!-- mapbox-gl -->
+    <script src="https://unpkg.com/mapbox-gl@2/dist/mapbox-gl.js"></script>
+    <!-- maplibre-gl -->
+    <script src="https://unpkg.com/maplibre-gl@2/dist/maplibre-gl.js"></script>
+    
+    <!-- gpt-vis 运行时 -->
+    <script src="./gpt-vis1.min.js"></script>
+
+    <script>
+      // 等待所有脚本和 DOM 加载完成
+      window.addEventListener('load', function() {
+        // 确保全局变量正确映射
+        if (typeof React !== 'undefined' && !window.React) {
+          window.React = React;
+        }
+        if (typeof ReactDOM !== 'undefined' && !window.ReactDOM) {
+          window.ReactDOM = ReactDOM;
+        }
+        
+        // 检查依赖是否加载完成
+        if (!window.React) {
+          console.error('React 未加载');
+          return;
+        }
+        if (!window.ReactDOM) {
+          console.warn('ReactDOM 未加载，某些功能可能不可用');
+        }
+        if (!window._) {
+          console.error('lodash 未加载');
+          return;
+        }
+        if (!window.mapboxgl) {
+          console.error('mapbox-gl 未加载');
+          return;
+        }
+        if (!window.maplibregl) {
+          console.error('maplibre-gl 未加载');
+          return;
+        }
+
+        // 数据配置
+        var options = {
+          type: "bar",
+          axisXTitle: "岗位",
+          axisYTitle: "人均薪酬(万元)",
+          data: [
+            {
+              category: "2023年董事会秘书",
+              value: 156.22,
+            },
+            {
+              category: "2023年董事长",
+              value: 128.17,
+            },
+            {
+              category: "2023年风险总监",
+              value: 110.63,
+            },
+            {
+              category: "2023年副行长",
+              value: 136.18,
+            },
+            {
+              category: "2023年行长",
+              value: 154.75,
+            },
+            {
+              category: "2023年行长助理",
+              value: 175.08,
+            },
+            {
+              category: "2023年监事长",
+              value: 130.06,
+            },
+            {
+              category: "2023年业务总监",
+              value: 150.36,
+            },
+          ],
+          group: false,
+          height: 400,
+          stack: false,
+          style: {
+            backgroundColor: "#fff",
+            palette: ["#4ECDC4", "#A5D8FF"],
+            texture: "default",
+          },
+          theme: "default",
+          title: "近1年上市银行不同岗位高管薪酬水平",
+          width: 600,
+        };
+
+        // 尝试使用 gpt-vis 渲染图表
+        var gptVis = window.GPTVis || window.GptVis;
+        
+        if (!gptVis) {
+          console.error('GPTVis 未找到');
+          console.log('window 对象上的键:', Object.keys(window).filter(k => k.toLowerCase().includes('gpt') || k.toLowerCase().includes('vis')));
+          return;
+        }
+
+        // 详细调试信息
+        console.log('GPTVis 对象:', gptVis);
+        console.log('GPTVis 类型:', typeof gptVis);
+        console.log('GPTVis 的键:', Object.keys(gptVis || {}));
+        console.log('GPTVis 的所有属性:', Object.getOwnPropertyNames(gptVis || {}));
+        
+        // 递归查找所有函数
+        function findAllFunctions(obj, prefix, depth) {
+          depth = depth || 0;
+          prefix = prefix || '';
+          if (depth > 3) return []; // 限制深度
+          
+          var functions = [];
+          if (!obj || typeof obj !== 'object') return functions;
+          
+          try {
+            for (var key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                var value = obj[key];
+                var fullPath = prefix ? prefix + '.' + key : key;
+                
+                if (typeof value === 'function') {
+                  functions.push({
+                    path: fullPath,
+                    func: value,
+                    name: key
+                  });
+                } else if (typeof value === 'object' && value !== null && key !== 'prototype') {
+                  functions = functions.concat(findAllFunctions(value, fullPath, depth + 1));
+                }
+              }
+            }
+          } catch (e) {
+            // 忽略访问错误
+          }
+          
+          return functions;
+        }
+        
+        var allFunctions = findAllFunctions(gptVis);
+        console.log('找到的所有函数:', allFunctions.map(f => f.path));
+        
+        // 尝试不同的调用方式
+        try {
+          var rendered = false;
+          
+          // 方式1: 如果 GPTVis 有 render 方法
+          if (typeof gptVis.render === "function") {
+            console.log('尝试使用 gptVis.render');
+            gptVis.render("#container", options);
+            rendered = true;
+          }
+          // 方式2: 如果 GPTVis 有 default 属性（可能是 ES6 模块导出）
+          else if (gptVis.default && typeof gptVis.default === "function") {
+            console.log('尝试使用 gptVis.default');
+            gptVis.default("#container", options);
+            rendered = true;
+          }
+          // 方式3: 如果 GPTVis 有 default.render
+          else if (gptVis.default && typeof gptVis.default.render === "function") {
+            console.log('尝试使用 gptVis.default.render');
+            gptVis.default.render("#container", options);
+            rendered = true;
+          }
+          // 方式4: 如果 GPTVis 是函数，直接调用
+          else if (typeof gptVis === "function") {
+            console.log('尝试直接调用 GPTVis 函数');
+            gptVis("#container", options);
+            rendered = true;
+          }
+          // 方式5: 如果 GPTVis 有 renderTo 方法
+          else if (typeof gptVis.renderTo === "function") {
+            console.log('尝试使用 gptVis.renderTo');
+            gptVis.renderTo("#container", options);
+            rendered = true;
+          }
+          // 方式6: 如果 GPTVis 有 createChart 方法
+          else if (typeof gptVis.createChart === "function") {
+            console.log('尝试使用 gptVis.createChart');
+            var chart = gptVis.createChart(options);
+            if (chart && typeof chart.render === "function") {
+              chart.render("#container");
+              rendered = true;
+            } else {
+              console.error('createChart 返回的对象没有 render 方法', chart);
+            }
+          }
+          // 方式7: 如果 GPTVis 有 Chart 属性
+          else if (gptVis.Chart && typeof gptVis.Chart === "function") {
+            console.log('尝试使用 new GPTVis.Chart');
+            var chart = new gptVis.Chart({
+              container: "#container",
+              ...options
+            });
+            if (chart && typeof chart.render === "function") {
+              chart.render();
+              rendered = true;
+            }
+          }
+          // 方式8: 尝试使用 React 方式渲染
+          else if (window.React && window.ReactDOM) {
+            console.log('尝试使用 React 方式渲染');
+            try {
+              var React = window.React;
+              var ReactDOM = window.ReactDOM;
+              // 如果 GPTVis 是一个 React 组件
+              if (gptVis.$$typeof || (gptVis.prototype && gptVis.prototype.isReactComponent)) {
+                var element = React.createElement(gptVis, options);
+                var container = document.querySelector("#container");
+                if (ReactDOM.createRoot) {
+                  var root = ReactDOM.createRoot(container);
+                  root.render(element);
+                } else {
+                  ReactDOM.render(element, container);
+                }
+                rendered = true;
+              }
+            } catch (reactError) {
+              console.error('React 渲染失败:', reactError);
+            }
+          }
+          
+          // 方式9: 尝试所有找到的函数
+          if (!rendered && allFunctions.length > 0) {
+            console.log('尝试使用找到的函数');
+            // 优先尝试包含 render、chart、vis 等关键词的函数
+            var priorityFunctions = allFunctions.filter(f => 
+              /render|chart|vis|create|mount/i.test(f.path)
+            );
+            
+            var functionsToTry = priorityFunctions.length > 0 ? priorityFunctions : allFunctions.slice(0, 5);
+            
+            for (var i = 0; i < functionsToTry.length && !rendered; i++) {
+              var funcInfo = functionsToTry[i];
+              try {
+                console.log('尝试调用函数:', funcInfo.path);
+                var result = funcInfo.func.call(gptVis, "#container", options);
+                if (result) {
+                  console.log('函数调用成功，返回:', result);
+                  rendered = true;
+                }
+              } catch (funcError) {
+                console.log('函数调用失败:', funcInfo.path, funcError.message);
+              }
+            }
+          }
+          
+          // 方式10: 尝试直接使用 React.createElement，传入 options 作为 props
+          if (!rendered && window.React && window.ReactDOM) {
+            console.log('尝试使用 React.createElement 直接渲染');
+            try {
+              var React = window.React;
+              var ReactDOM = window.ReactDOM;
+              var container = document.querySelector("#container");
+              
+              // 尝试将 GPTVis 作为组件渲染
+              var element = React.createElement(gptVis, options);
+              if (ReactDOM.createRoot) {
+                var root = ReactDOM.createRoot(container);
+                root.render(element);
+              } else {
+                ReactDOM.render(element, container);
+              }
+              rendered = true;
+            } catch (reactError2) {
+              console.error('React.createElement 渲染失败:', reactError2);
+            }
+          }
+          
+          if (!rendered) {
+            console.error('找不到合适的渲染方法');
+            console.log('GPTVis 对象结构:', JSON.stringify(Object.keys(gptVis || {}), null, 2));
+            console.log('请检查控制台中的 GPTVis 对象结构，并查看上面找到的所有函数');
+          }
+        } catch (error) {
+          console.error('渲染图表时出错:', error);
+          console.error('错误堆栈:', error.stack);
+        }
+      });
+    </script>
+  </body>
+</html>
+
+

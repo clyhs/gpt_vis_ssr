@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>G2 柱状图示例</title>
+    <!-- 引入 G2 的 CSS 文件 -->
+  </head>
+
+  <script src="./g2.min.js"></script>
+
+  <body>
+    <div id="container" width="600" height="400"></div>
+  </body>
+  <script>
+    // 准备数据
+    var options = {
+      axisXTitle: "岗位",
+      axisYTitle: "人均薪酬(万元)",
+      data: [
+        {
+          category: "2023年董事会秘书",
+          value: 156.22,
+        },
+        {
+          category: "2023年董事长",
+          value: 128.17,
+        },
+        {
+          category: "2023年风险总监",
+          value: 110.63,
+        },
+        {
+          category: "2023年副行长",
+          value: 136.18,
+        },
+        {
+          category: "2023年行长",
+          value: 154.75,
+        },
+        {
+          category: "2023年行长助理",
+          value: 175.08,
+        },
+        {
+          category: "2023年监事长",
+          value: 130.06,
+        },
+        {
+          category: "2023年业务总监",
+          value: 150.36,
+        },
+      ],
+      group: false,
+      height: 400,
+      stack: false,
+      style: {
+        backgroundColor: "#fff",
+        palette: ["#4ECDC4", "#A5D8FF"],
+        texture: "default",
+      },
+      theme: "default",
+      title: "近1年上市银行不同岗位高管薪酬水平",
+      width: 600,
+    };
+    // var c1 = document.getElementById("container");
+    // 初始化图表实例
+    const chart = new G2.Chart({
+      container: "container",
+    });
+
+    // chart.options(options);
+    chart.options = options;
+    // chart.setOptions(options);
+    chart.render();
+  </script>
+</html>

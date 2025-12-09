@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gpt-vis 示例柱状图</title>
+    <!-- mapbox-gl CSS -->
+    <link href="https://unpkg.com/mapbox-gl@2/dist/mapbox-gl.css" rel="stylesheet" />
+    <!-- maplibre-gl CSS -->
+    <link href="https://unpkg.com/maplibre-gl@2/dist/maplibre-gl.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div
+      id="container"
+      style="width: 800px; height: 500px; margin: 24px auto;"
+    ></div>
+
+    <!-- 引入依赖库 -->
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- lodash -->
+    <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
+    <!-- mapbox-gl -->
+    <script src="https://unpkg.com/mapbox-gl@2/dist/mapbox-gl.js"></script>
+    <!-- maplibre-gl -->
+    <script src="https://unpkg.com/maplibre-gl@2/dist/maplibre-gl.js"></script>
+    
+    <!-- gpt-vis 运行时 -->
+    <script src="./gpt-vis.min.js"></script>
+
+    <script>
+      // 等待所有脚本和 DOM 加载完成
+      window.addEventListener('load', function() {
+        // 确保全局变量正确映射（React 18 UMD 版本）
+        if (typeof React !== 'undefined' && !window.React) {
+          window.React = React;
+        }
+        if (typeof ReactDOM !== 'undefined' && !window.ReactDOM) {
+          window.ReactDOM = ReactDOM;
+        }
+        // 数据
+        var options = {
+          type: "bar",
+          axisXTitle: "岗位",
+          axisYTitle: "人均薪酬(万元)",
+          data: [
+            {
+              category: "2023年董事会秘书",
+              value: 156.22,
+            },
+            {
+              category: "2023年董事长",
+              value: 128.17,
+            },
+            {
+              category: "2023年风险总监",
+              value: 110.63,
+            },
+            {
+              category: "2023年副行长",
+              value: 136.18,
+            },
+            {
+              category: "2023年行长",
+              value: 154.75,
+            },
+            {
+              category: "2023年行长助理",
+              value: 175.08,
+            },
+            {
+              category: "2023年监事长",
+              value: 130.06,
+            },
+            {
+              category: "2023年业务总监",
+              value: 150.36,
+            },
+          ],
+          group: false,
+          height: 400,
+          stack: false,
+          style: {
+            backgroundColor: "#fff",
+            palette: ["#4ECDC4", "#A5D8FF"],
+            texture: "default",
+          },
+          theme: "default",
+          title: "近1年上市银行不同岗位高管薪酬水平",
+          width: 600,
+        };
+
+        // 检查依赖是否加载完成
+        if (!window.React || !window.ReactDOM) {
+          console.error('React 或 ReactDOM 未加载');
+          return;
+        }
+        if (!window._) {
+          console.error('lodash 未加载');
+          return;
+        }
+
+        // 尝试使用 gpt-vis 渲染
+        // 注意：gpt-vis 可能暴露为 window.GPTVis（全大写）或 window.GptVis
+        var gptVis = window.GPTVis || window.GptVis;
+        if (gptVis && typeof gptVis.render === "function") {
+          console.log('使用 gpt-vis 渲染:', gptVis);
+          gptVis.render("#container", options);
+        } else {
+          console.error('gpt-vis 未正确加载或 render 方法不存在');
+          console.log('可用的全局变量:', {
+            React: !!window.React,
+            ReactDOM: !!window.ReactDOM,
+            _: !!window._,
+            GPTVis: !!window.GPTVis,
+            GptVis: !!window.GptVis
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
+
+

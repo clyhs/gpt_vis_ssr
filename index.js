@@ -54,6 +54,122 @@ app.post('/render', async (req, res) => {
   }
 })
 
+app.post('/render-html', async (req, res) => {
+  try {
+    const options = {"type":"line","data":[{"time":"1974","value":107,"group":"Gas flaring"},{"time":"1974","value":208,"group":"Renewables"},{"time":"1974","value":356,"group":"Fossil fuels"},{"time":"1975","value":173,"group":"Gas flaring"},{"time":"1975","value":415,"group":"Renewables"},{"time":"1975","value":364,"group":"Fossil fuels"},{"time":"1976","value":117,"group":"Gas flaring"},{"time":"1976","value":220,"group":"Renewables"},{"time":"1976","value":373,"group":"Fossil fuels"},{"time":"1977","value":122,"group":"Gas flaring"},{"time":"1977","value":225,"group":"Renewables"},{"time":"1977","value":382,"group":"Fossil fuels"}]};
+
+    // 与 /render 接口一致的参数校验
+    if (!options) {
+      return res.status(400).json({
+        success: false,
+        errorMessage: '缺少必要的参数: type 或 data'
+      })
+    }
+
+    // 转义 HTML 特殊字符，防止 XSS
+    const chartConfigStr = JSON.stringify(options).replace(/</g, '\\u003c').replace(/>/g, '\\u003e')
+
+    // 生成包含图表的 HTML 页面
+    const html = `<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gpt-vis 示例柱状图</title>
+    <!-- mapbox-gl CSS -->
+    <link href="https://unpkg.com/mapbox-gl@2/dist/mapbox-gl.css" rel="stylesheet" />
+    <!-- maplibre-gl CSS -->
+    <link href="https://unpkg.com/maplibre-gl@2/dist/maplibre-gl.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div
+      id="container"
+      style="width: 800px; height: 500px; margin: 24px auto;"
+    ></div>
+
+    <!-- 引入依赖库 -->
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- lodash -->
+    <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
+    <!-- mapbox-gl -->
+    <script src="https://unpkg.com/mapbox-gl@2/dist/mapbox-gl.js"></script>
+    <!-- maplibre-gl -->
+    <script src="https://unpkg.com/maplibre-gl@2/dist/maplibre-gl.js"></script>
+    
+    <!-- gpt-vis 运行时 -->
+    <script src="./gpt-vis.min.js"></script>
+
+    <script>
+      // 等待所有脚本和 DOM 加载完成
+      window.addEventListener('load', function() {
+        // 确保全局变量正确映射（React 18 UMD 版本）
+        if (typeof React !== 'undefined' && !window.React) {
+          window.React = React;
+        }
+        if (typeof ReactDOM !== 'undefined' && !window.ReactDOM) {
+          window.ReactDOM = ReactDOM;
+        }
+        // 数据
+        var options = ${options};
+
+        // 检查依赖是否加载完成
+        if (!window.React || !window.ReactDOM) {
+          console.error('React 或 ReactDOM 未加载');
+          return;
+        }
+        if (!window._) {
+          console.error('lodash 未加载');
+          return;
+        }
+
+        // 尝试使用 gpt-vis 渲染
+        // 注意：gpt-vis 可能暴露为 window.GPTVis（全大写）或 window.GptVis
+        var gptVis = window.GPTVis || window.GptVis;
+        if (gptVis && typeof gptVis.render === "function") {
+          console.log('使用 gpt-vis 渲染:', gptVis);
+          gptVis.render("#container", options);
+        } else {
+          console.error('gpt-vis 未正确加载或 render 方法不存在');
+          console.log('可用的全局变量:', {
+            React: !!window.React,
+            ReactDOM: !!window.ReactDOM,
+            _: !!window._,
+            GPTVis: !!window.GPTVis,
+            GptVis: !!window.GptVis
+          });
+        }
+      });
+    </script>
+  </body>
+</html>`
+
+  // 生成唯一文件名并保存图片
+    const filename = `${uuidv4()}.html`
+    const filePath = path.join(imagesDir, filename)
+    await fs.writeFile(filePath, html)
+
+    // 构建图片URL
+    const host = req.get('host')
+    const protocol = req.protocol
+    const imageUrl = `${protocol}://${host}/images/${filename}`
+
+    res.json({
+      success: true,
+      resultObj: imageUrl
+    })
+
+  } catch (error) {
+    console.error('渲染 HTML 图表时出错:', error)
+    res.status(500).json({
+      success: false,
+      errorMessage: `渲染 HTML 图表失败: ${error.message}`
+    })
+  }
+})
+
 app.listen(port, () => {
   console.log(`GPT-Vis-SSR 服务运行在 http://localhost:${port}`)
 })
