@@ -56,8 +56,7 @@ app.post('/render', async (req, res) => {
 
 app.post('/render-html', async (req, res) => {
   try {
-    const options = {"type":"line","data":[{"time":"1974","value":107,"group":"Gas flaring"},{"time":"1974","value":208,"group":"Renewables"},{"time":"1974","value":356,"group":"Fossil fuels"},{"time":"1975","value":173,"group":"Gas flaring"},{"time":"1975","value":415,"group":"Renewables"},{"time":"1975","value":364,"group":"Fossil fuels"},{"time":"1976","value":117,"group":"Gas flaring"},{"time":"1976","value":220,"group":"Renewables"},{"time":"1976","value":373,"group":"Fossil fuels"},{"time":"1977","value":122,"group":"Gas flaring"},{"time":"1977","value":225,"group":"Renewables"},{"time":"1977","value":382,"group":"Fossil fuels"}]};
-
+    const options = req.body
     // 与 /render 接口一致的参数校验
     if (!options) {
       return res.status(400).json({
