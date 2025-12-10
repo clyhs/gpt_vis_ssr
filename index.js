@@ -84,7 +84,7 @@ app.post('/render-html', async (req, res) => {
   <body>
     <div
       id="container"
-      style="width: 800px; height: 500px; margin: 24px auto;"
+      style="width: 500px; height: 380px; margin: 24px auto;"
     ></div>
 
     <!-- 引入依赖库 -->
